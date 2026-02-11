@@ -4,8 +4,8 @@
 #### **1. SMART CONTRACT SECURITY ISSUES**
 
 ##### 1.1 **Missing Signature Verification Against Signer Address: CRITICAL**
-**File:** `components/qatar/Prediction.tsx` (Lines 40-64)  
-**URL:** https://github.com/crewspacex/general_blockchain_assessment-2/blob/2c7dc08998ecf27737c8cbc7824ea01b4d4a5dd7/components/qatar/Prediction.tsx#L40-L64
+**File:** `components/qatar/Prediction.tsx` (Lines 39-69)  
+**URL:** https://github.com/crewspacex/general_blockchain_assessment-2/blob/2c7dc08998ecf27737c8cbc7824ea01b4d4a5dd7/components/qatar/Prediction.tsx#L39-L69
 
 **Vulnerability:**
 ```tsx
@@ -41,7 +41,7 @@ const verifySignature = async () => {
 ```
 
 ##### 1.2 **No Contract Address Validation: HIGH**
-**File:** `utils/getContract.ts` (Lines 1-47)  
+**File:** `utils/getContract.ts`  
 **URL:** https://github.com/crewspacex/general_blockchain_assessment-2/blob/2c7dc08998ecf27737c8cbc7824ea01b4d4a5dd7/utils/getContract.ts
 
 **Vulnerability:**
@@ -101,9 +101,10 @@ export const getContract = async <TAbi extends Abi | unknown[]>({
 #### **2. AUTHENTICATION & AUTHORIZATION ISSUES**
 
 ##### **2.1 No Token Revocation System: HIGH**
-**Files:** 
-- `backend/utils/jwtToken.js` (Lines 1-37)
-- `backend/middlewares/user_actions/auth.js` (Lines 1-41)
+**File:**  `backend/utils/jwtToken.js`  
+**URL:** https://github.com/crewspacex/general_blockchain_assessment-2/blob/2c7dc08998ecf27737c8cbc7824ea01b4d4a5dd7/backend/utils/jwtToken.js  
+**FILE:** `backend/middlewares/user_actions/auth.js`  
+**URL:** https://github.com/crewspacex/general_blockchain_assessment-2/blob/2c7dc08998ecf27737c8cbc7824ea01b4d4a5dd7/backend/middlewares/user_actions/auth.js
 
 **Vulnerability:**
 ```javascript
@@ -167,32 +168,13 @@ exports.logoutUser = asyncErrorHandler(async (req, res, next) => {
 });
 ```
 
-##### **2.2 No Token Expiration Validation: MEDIUM**
-**Files:**
-- `backend/models/userModel.js` (Line 60)
-- `backend/utils/jwtToken.js` (Lines 5-11)
-
-**Issue:**
-```javascript
-userSchema.methods.getJWTToken = function () {
-    return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRE  // What if JWT_EXPIRE is not set properly?
-    });
-}
-```
-
-**Recommendation:**
-- Set a reasonable expiration time (15-30 minutes for access tokens)
-- Implement refresh token rotation for long-lived sessions
-- Store refresh tokens in database with user association
-
 ---
 
 #### **3. INPUT VALIDATION & XSS/INJECTION VULNERABILITIES**
 
 ##### **3.1 Missing Input Validation in Profile Update: HIGH**
-**File:** `backend/controllers/userController.js` (Lines 162-188)  
-**URL:** https://github.com/crewspacex/general_blockchain_assessment-2/blob/2c7dc08998ecf27737c8cbc7824ea01b4d4a5dd7/backend/controllers/userController.js#L162-L188
+**File:** `backend/controllers/userController.js` (Lines 163-194)  
+**URL:** https://github.com/crewspacex/general_blockchain_assessment-2/blob/2c7dc08998ecf27737c8cbc7824ea01b4d4a5dd7/backend/controllers/userController.js#L163-L194
 
 **Vulnerability:**
 ```javascript
@@ -269,8 +251,8 @@ exports.updateProfile = asyncErrorHandler(async (req, res, next) => {
 ```
 
 ##### **3.2 Frontend Profile Update Has No Backend Validation: HIGH**
-**File:** `hooks/dashboard/arcanaProfile.tsx` (Lines 122-149)  
-**URL:** https://github.com/crewspacex/general_blockchain_assessment-2/blob/2c7dc08998ecf27737c8cbc7824ea01b4d4a5dd7/hooks/dashboard/arcanaProfile.tsx#L122-L149
+**File:** `hooks/dashboard/arcanaProfile.tsx` (Lines 137-187)  
+**URL:** https://github.com/crewspacex/general_blockchain_assessment-2/blob/2c7dc08998ecf27737c8cbc7824ea01b4d4a5dd7/hooks/dashboard/arcanaProfile.tsx#L137-L187
 
 **Vulnerability:**
 ```tsx
@@ -318,8 +300,8 @@ app.post('/app/profile', isAuthenticatedUser, [
 ```
 
 ##### **3.3 Password Reset - Missing Validation & CSRF Protection: CRITICAL**
-**File:** `backend/controllers/userController.js` (Lines 112-148)  
-**URL:** https://github.com/crewspacex/general_blockchain_assessment-2/blob/2c7dc08998ecf27737c8cbc7824ea01b4d4a5dd7/backend/controllers/userController.js#L112-L148
+**File:** `backend/controllers/userController.js` (Lines 125-145)  
+**URL:** https://github.com/crewspacex/general_blockchain_assessment-2/blob/2c7dc08998ecf27737c8cbc7824ea01b4d4a5dd7/backend/controllers/userController.js#L125-L145
 
 **Vulnerability:**
 ```javascript
@@ -423,30 +405,6 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
 });
 ```
 
-##### **3.4 Password Reset Token Generation Could Be Weak: MEDIUM**
-**File:** `backend/models/userModel.js` (Lines 64-78)
-
-```javascript
-userSchema.methods.getResetPasswordToken = async function () {
-    // Generate token - 20 bytes of randomness
-    const resetToken = crypto.randomBytes(20).toString("hex");  // Good
-    
-    // Hash it before storing
-    this.resetPasswordToken = crypto.createHash("sha256")
-        .update(resetToken)
-        .digest("hex");  // Good
-    
-    // 15 minute expiration
-    this.resetPasswordExpire = Date.now() + 15 * 60 * 1000;  // Consider longer
-    
-    return resetToken;
-}
-```
-
-**Issue:**
-- 15 minutes might be too short for users to check email and reset password
-- Token length (20 bytes = 40 hex characters) is acceptable but could be 32 bytes
-
 ---
 
 ### SUMMARY TABLE
@@ -456,9 +414,8 @@ userSchema.methods.getResetPasswordToken = async function () {
 | 1 | CRITICAL | Smart Contract | No signature verification against signer address | `components/qatar/Prediction.tsx` |
 | 2 | HIGH | Smart Contract | No contract address validation | `utils/getContract.ts` |
 | 3 | HIGH | Auth | No token revocation system | `backend/middlewares/user_actions/auth.js` |
-| 4 | MEDIUM | Auth | No token expiration enforcement | `backend/utils/jwtToken.js` |
-| 5 | HIGH | Input Validation | No validation in profile update endpoint | `backend/controllers/userController.js` |
-| 6 | HIGH | Input Validation | Frontend profile update lacks backend validation | `hooks/dashboard/arcanaProfile.tsx` |
-| 7 | CRITICAL | Input Validation | Password reset missing validation | `backend/controllers/userController.js` |
+| 4 | HIGH | Input Validation | No validation in profile update endpoint | `backend/controllers/userController.js` |
+| 5 | HIGH | Input Validation | Frontend profile update lacks backend validation | `hooks/dashboard/arcanaProfile.tsx` |
+| 6 | CRITICAL | Input Validation | Password reset missing validation | `backend/controllers/userController.js` |
 
 ---
