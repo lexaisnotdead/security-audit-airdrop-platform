@@ -1,4 +1,4 @@
-# Security Assessment Report: Airdrop Platform
+# Security Audit Report: Airdrop Platform
 **Repository:** https://github.com/crewspacex/general_blockchain_assessment-2
 
 #### **1. SMART CONTRACT SECURITY ISSUES**
